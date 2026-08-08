@@ -14,7 +14,12 @@
       "Bash(command -v python3)",
       "Bash(command -v ffmpeg)",
       "Bash(/c/Python314/python -c \"import PIL; print\\(PIL.__version__\\)\")",
-      "Bash(/c/Python314/python -c ' *)"
+      "Bash(/c/Python314/python -c ' *)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(git remote *)",
+      "Bash(git push *)",
+      "Bash(command -v gh)",
+      "Bash(git ls-remote *)"
     ]
   }
 }
