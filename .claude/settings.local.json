@@ -34,7 +34,9 @@
       "Bash(curl -s -D - -o /tmp/body4.html \"https://axentia-e7jumbggn-ferfranchi10s-projects.vercel.app/?cb=$\\(date +%s\\)\")",
       "Bash(rm -rf .next)",
       "Bash(curl -s -D - -o /tmp/final_check.html \"https://axentia-web.vercel.app/?cb=$\\(date +%s\\)\")",
-      "Bash(python -c ' *)"
+      "Bash(python -c ' *)",
+      "Bash(powershell -Command 'Get-ChildItem '\\\\''C:\\\\Windows\\\\Fonts'\\\\'' -Filter '\\\\''*.ttf'\\\\'' | Where-Object { $_.Name -match '\\\\''arial|segoe|calibri|verdana'\\\\'' } | Select-Object -First 20 Name')",
+      "Bash(powershell -Command \"Get-ChildItem 'C:\\\\Windows\\\\Fonts' -Filter 'segoeui*.ttf' | Select-Object Name\")"
     ]
   }
 }
