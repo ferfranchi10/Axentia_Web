@@ -1,0 +1,141 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-darker: #030712;
+  --color-bg-deep: #090e1a;
+  --color-bg-card: #0e1629;
+  
+  --color-accent-blue: #3b82f6;
+  --color-accent-cyan: #06b6d4;
+  --color-accent-violet: #8b5cf6;
+  
+  --font-sans: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
+}
+
+:root {
+  --background: #030712;
+  --foreground: #f8fafc;
+  
+  --accent-blue-rgb: 59, 130, 246;
+  --accent-cyan-rgb: 6, 182, 212;
+  --accent-violet-rgb: 139, 92, 246;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  overflow-x: hidden;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+/* Glassmorphism base classes */
+.glass-panel {
+  background: rgba(11, 19, 43, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+  background: rgba(14, 22, 41, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(6, 182, 212, 0.3);
+  box-shadow: 0 10px 30px -10px rgba(6, 182, 212, 0.15);
+  background: rgba(14, 22, 41, 0.7);
+  transform: translateY(-2px);
+}
+
+/* Premium Gradient Text */
+.text-gradient-cyan-blue {
+  background: linear-gradient(135deg, #ffffff 30%, #06b6d4 70%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-purple-cyan {
+  background: linear-gradient(135deg, #a78bfa 0%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-gray {
+  background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #030712;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 5px;
+  border: 2px solid #030712;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Dynamic Interactive Glow Spotlights */
+.glow-blur {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: 0;
+  transition: all 1s ease-in-out;
+}
+
+/* Custom animation for nodes */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-10px) scale(1.02);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Subtle border animation */
+@keyframes borderGlow {
+  0%, 100% {
+    border-color: rgba(255, 255, 255, 0.05);
+  }
+  50% {
+    border-color: rgba(59, 130, 246, 0.2);
+  }
+}
+
+.border-animate-glow {
+  animation: borderGlow 4s ease-in-out infinite;
+}
+
+/* Accessibility overrides for WCAG AA 4.5:1 contrast compliance on dark backgrounds */
+.text-slate-500 {
+  color: #94a3b8 !important; /* Mapped to slate-400 for better visibility */
+}
+.text-slate-600 {
+  color: #cbd5e1 !important; /* Mapped to slate-300 for better visibility */
+}
