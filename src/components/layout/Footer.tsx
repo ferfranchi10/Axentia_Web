@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 const WHATSAPP_NUMBER = "34722406500";
 const CONTACT_EMAIL = "axentia.consulting@gmail.com";
 
@@ -8,9 +10,7 @@ export default function Footer() {
     <footer className="bg-bg-soft border-t border-navy/5 py-12">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
         <div className="flex items-center justify-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
-            <span className="font-bold text-white text-sm">A</span>
-          </div>
+          <Image src="/brand/axentia-icon.png" alt="AXENTIA" width={28} height={28} className="w-7 h-7" />
           <span className="text-lg font-bold tracking-tight text-navy">AXENTIA</span>
         </div>
 

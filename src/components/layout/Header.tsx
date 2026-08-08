@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { Menu, X, ArrowRight, Calendar } from "lucide-react";
 import { useModal } from "@/context/ModalContext";
 
@@ -32,9 +33,14 @@ export default function Header() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           {/* Logo */}
           <a href="#" className="flex items-center gap-2 group">
-            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
-              <span className="font-bold text-white text-lg tracking-tighter">A</span>
-            </div>
+            <Image
+              src="/brand/axentia-icon.png"
+              alt="AXENTIA"
+              width={36}
+              height={36}
+              priority
+              className="w-9 h-9 group-hover:scale-105 transition-transform duration-300"
+            />
             <span className="text-xl font-bold tracking-tight text-navy">
               AXENTIA
             </span>

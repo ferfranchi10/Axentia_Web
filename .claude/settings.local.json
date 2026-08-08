@@ -6,7 +6,15 @@
       "Bash(git commit *)",
       "Bash(npm run *)",
       "Bash(git check-ignore *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(powershell -Command \"Get-ChildItem -Path 'C:\\\\Users\\\\ferna\\\\Downloads','C:\\\\Users\\\\ferna\\\\Desktop','C:\\\\Users\\\\ferna\\\\OneDrive\\\\Desktop' -Include *.png,*.jpg,*.jpeg,*.svg,*.webp -File -Recurse -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 10 FullName, LastWriteTime | Format-Table -AutoSize\")",
+      "Bash(command -v magick)",
+      "Bash(command -v convert)",
+      "Bash(command -v python)",
+      "Bash(command -v python3)",
+      "Bash(command -v ffmpeg)",
+      "Bash(/c/Python314/python -c \"import PIL; print\\(PIL.__version__\\)\")",
+      "Bash(/c/Python314/python -c ' *)"
     ]
   }
 }
