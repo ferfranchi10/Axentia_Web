@@ -36,6 +36,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const {
+      clientType,
       companyName,
       sector,
       teamSize,
@@ -47,8 +48,10 @@ export async function POST(request: Request) {
       phone,
     } = body;
 
+    const isParticular = clientType === "particular";
+
     // Basic required-field validation
-    if (!companyName || !sector || !fullName || !email || !phone || !description) {
+    if (!fullName || !email || !phone || !description || (!isParticular && (!companyName || !sector))) {
       return NextResponse.json(
         { error: "Faltan campos obligatorios. Revisá el formulario e intentá de nuevo." },
         { status: 400 }
@@ -64,8 +67,9 @@ export async function POST(request: Request) {
     }
 
     // Sanitize + cap length on every field before it's interpolated into email HTML
-    const safeCompanyName = escapeHtml(truncate(String(companyName), MAX_TEXT_LENGTH));
-    const safeSector = escapeHtml(truncate(String(sector), MAX_TEXT_LENGTH));
+    const safeClientTypeLabel = isParticular ? "Persona física" : "Empresa";
+    const safeCompanyName = companyName ? escapeHtml(truncate(String(companyName), MAX_TEXT_LENGTH)) : "";
+    const safeSector = sector ? escapeHtml(truncate(String(sector), MAX_TEXT_LENGTH)) : "";
     const safeTeamSize = escapeHtml(truncate(String(teamSize || "No especificado"), MAX_TEXT_LENGTH));
     const safeFullName = escapeHtml(truncate(String(fullName), MAX_TEXT_LENGTH));
     const safeEmail = escapeHtml(truncate(String(email), MAX_TEXT_LENGTH));
@@ -73,22 +77,26 @@ export async function POST(request: Request) {
     const safeDescription = escapeHtml(truncate(String(description), MAX_DESCRIPTION_LENGTH));
     const safeOtherNeed = otherNeed ? escapeHtml(truncate(String(otherNeed), MAX_TEXT_LENGTH)) : "";
 
+    const safeSubjectName = isParticular ? safeFullName : safeCompanyName;
+
     const needsText =
       needs
         .filter((id: unknown): id is string => typeof id === "string")
         .map((id: string) => (id === "otro" && safeOtherNeed ? `Otro: ${safeOtherNeed}` : NEEDS_LABELS[id] || escapeHtml(id)))
         .join(", ") || "No especificadas";
 
-    // Admin notification email
-    const adminEmailHtml = `
-      <div style="font-family: Inter, sans-serif; max-width: 600px; color: #0b1f33; line-height: 1.6;">
-        <img src="${LOGO_URL}" alt="AXENTIA" width="140" style="display: block; margin-bottom: 20px;" />
-        <h2 style="color: #4da8ff; border-bottom: 2px solid #f5f7fa; padding-bottom: 10px;">
-          Nueva solicitud de auditoría gratuita
-        </h2>
-        <p>Se recibió una nueva solicitud a través de la web de Axentia:</p>
-
-        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+    const identityRowsHtml = isParticular
+      ? `
+          <tr style="background-color: #f5f7fa;">
+            <td style="padding: 10px; font-weight: bold; width: 40%;">Tipo de cliente:</td>
+            <td style="padding: 10px;">${safeClientTypeLabel}</td>
+          </tr>
+          ${safeSector ? `
+          <tr>
+            <td style="padding: 10px; font-weight: bold;">Área de interés:</td>
+            <td style="padding: 10px;">${safeSector}</td>
+          </tr>` : ""}`
+      : `
           <tr style="background-color: #f5f7fa;">
             <td style="padding: 10px; font-weight: bold; width: 40%;">Empresa:</td>
             <td style="padding: 10px;">${safeCompanyName}</td>
@@ -100,7 +108,19 @@ export async function POST(request: Request) {
           <tr style="background-color: #f5f7fa;">
             <td style="padding: 10px; font-weight: bold;">Empleados:</td>
             <td style="padding: 10px;">${safeTeamSize}</td>
-          </tr>
+          </tr>`;
+
+    // Admin notification email
+    const adminEmailHtml = `
+      <div style="font-family: Inter, sans-serif; max-width: 600px; color: #0b1f33; line-height: 1.6;">
+        <img src="${LOGO_URL}" alt="AXENTIA" width="140" style="display: block; margin-bottom: 20px;" />
+        <h2 style="color: #4da8ff; border-bottom: 2px solid #f5f7fa; padding-bottom: 10px;">
+          Nueva solicitud de auditoría gratuita
+        </h2>
+        <p>Se recibió una nueva solicitud a través de la web de Axentia:</p>
+
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+          ${identityRowsHtml}
           <tr>
             <td style="padding: 10px; font-weight: bold;">Necesidades seleccionadas:</td>
             <td style="padding: 10px;">${needsText}</td>
@@ -167,7 +187,7 @@ export async function POST(request: Request) {
       console.warn("SMTP_PASS no está definido en el archivo .env.local.");
       console.warn("Los correos electrónicos se han registrado en el log pero NO se enviaron.");
       console.warn("=========================================================");
-      console.log(`[Notificación interna]\nPara: ${ADMIN_EMAIL}\nAsunto: Nueva solicitud de auditoría gratuita – ${safeCompanyName}\n${adminEmailHtml}`);
+      console.log(`[Notificación interna]\nPara: ${ADMIN_EMAIL}\nAsunto: Nueva solicitud de auditoría gratuita – ${safeSubjectName}\n${adminEmailHtml}`);
       console.log(`[Confirmación al cliente]\nPara: ${safeEmail}\nAsunto: Hemos recibido tu solicitud – Axentia\n${customerEmailHtml}`);
 
       return NextResponse.json({
@@ -190,7 +210,7 @@ export async function POST(request: Request) {
     await transporter.sendMail({
       from: `Axentia Web <${smtpUser}>`,
       to: ADMIN_EMAIL,
-      subject: `Nueva solicitud de auditoría gratuita – ${safeCompanyName}`,
+      subject: `Nueva solicitud de auditoría gratuita – ${safeSubjectName}`,
       html: adminEmailHtml,
     });
 

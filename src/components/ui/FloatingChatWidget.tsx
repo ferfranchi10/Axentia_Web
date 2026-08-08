@@ -5,6 +5,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MessageSquare, X, Send, Bot, Calendar, Sparkles, MessageCircle } from "lucide-react";
 import { useModal } from "@/context/ModalContext";
 
+const WHATSAPP_NUMBER = "34722406500";
+
+type CtaAction = "audit" | "meeting" | "whatsapp";
+
 interface Message {
   id: string;
   sender: "bot" | "user";
@@ -12,16 +16,138 @@ interface Message {
   timestamp: Date;
   cta?: {
     label: string;
-    action: "audit" | "meeting";
+    action: CtaAction;
   };
 }
 
-const PRESETS = [
-  { q: "¿Cómo trabajáis en Axentia?", a: "Primero auditamos tus procesos (ventas, administración, operaciones) y detectamos cuellos de botella. Luego diseñamos e implementamos las herramientas a medida, con soporte y formación para tu equipo." },
-  { q: "¿Qué incluye la Auditoría?", a: "Nuestra Auditoría gratuita incluye: análisis de tus flujos de trabajo, identificación de cuellos de botella y un diagnóstico de oportunidades de automatización e IA, sin coste." },
-  { q: "¿Qué tecnologías utilizáis?", a: "Trabajamos con automatizaciones (Make, n8n, Zapier), desarrollo a medida (Next.js/React), y modelos de Inteligencia Artificial integrados en tus flujos de trabajo." },
-  { q: "¿Es necesario saber programación?", a: "Para nada. Nosotros nos encargamos de toda la implementación y formamos a tu equipo para que la transición sea fluida." },
+interface Intent {
+  id: string;
+  question: string;
+  test: (q: string) => boolean;
+  answer: string;
+  cta?: { label: string; action: CtaAction };
+}
+
+const normalize = (text: string) =>
+  text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "");
+
+const AUDIT_CTA = { label: "Solicitar auditoría gratis", action: "audit" as const };
+const MEETING_CTA = { label: "Agendar una llamada", action: "meeting" as const };
+const WHATSAPP_CTA = { label: "Hablar por WhatsApp", action: "whatsapp" as const };
+
+// Ordered from most specific to most generic: the first match wins.
+const INTENTS: Intent[] = [
+  {
+    id: "greeting",
+    question: "¡Hola!",
+    test: (q) => /^\s*(hola|holis|buenas|hey|ey|que tal|buen dia|buenos dias|buenas tardes|buenas noches)\b/.test(q),
+    answer: "¡Hola! Puedo contarte cómo trabajamos, qué incluye la auditoría gratuita, qué tecnologías usamos, si trabajamos con personas físicas o autónomos, y ponerte en contacto con el equipo. ¿Qué te gustaría saber?",
+  },
+  {
+    id: "thanks",
+    question: "Gracias",
+    test: (q) => /^\s*(gracias|muchas gracias|genial|perfecto|excelente|buenisimo|dale)[\s!.]*$/.test(q),
+    answer: "¡De nada! Si te surge otra duda, escribime cuando quieras.",
+  },
+  {
+    id: "farewell",
+    question: "Chau",
+    test: (q) => /^\s*(chau|adios|nos vemos|hasta luego|bye|hasta pronto)\b/.test(q),
+    answer: "¡Gracias por escribirnos! Cuando quieras retomamos la conversación. 👋",
+  },
+  {
+    id: "individuals",
+    question: "¿Trabajan también con personas físicas o autónomos?",
+    test: (q) => /particular|persona fisica|autonom|freelance|individual/.test(q),
+    answer: "Sí, trabajamos tanto con empresas como con personas físicas y autónomos. En el formulario podés elegir la opción \"Persona física\" y contarnos tu caso puntual.",
+    cta: AUDIT_CTA,
+  },
+  {
+    id: "pricing",
+    question: "¿Cuánto cuesta la auditoría?",
+    test: (q) => /precio|costo|cuesta|tarifa|presupuesto|cobran|cuanto sale/.test(q),
+    answer: "La auditoría inicial es 100% gratuita y sin compromiso. El costo de implementación depende del alcance de cada proyecto: una vez que analizamos tu caso te armamos un presupuesto a medida.",
+    cta: AUDIT_CTA,
+  },
+  {
+    id: "contact_human",
+    question: "Quiero hablar con una persona",
+    test: (q) => /hablar con (alguien|una persona|un humano)|persona real|asesor|atencion al cliente|numero de telefono|contactar/.test(q),
+    answer: "¡Claro! Te paso directo con el equipo por WhatsApp para que te atiendan personalmente.",
+    cta: WHATSAPP_CTA,
+  },
+  {
+    id: "privacy",
+    question: "¿Cómo manejan mis datos?",
+    test: (q) => /rgpd|proteccion de datos|privacidad|seguridad de (los )?datos/.test(q),
+    answer: "Cumplimos con el RGPD (Reglamento General de Protección de Datos), la garantía europea de privacidad, en todo lo que implementamos.",
+  },
+  {
+    id: "duration",
+    question: "¿Cuánto tarda el proceso?",
+    test: (q) => /cuanto tarda|cuanto dura|cuanto tiempo|plazo/.test(q),
+    answer: "Los tiempos varían según el proyecto: la auditoría gratuita te la entregamos en pocos días, y el plazo de implementación se define según el alcance detectado en tu caso.",
+    cta: AUDIT_CTA,
+  },
+  {
+    id: "sectors",
+    question: "¿Con qué sectores trabajan?",
+    test: (q) => /sector|rubro|tipo de empresa/.test(q),
+    answer: "Trabajamos con empresas y personas físicas de cualquier sector: comercio, servicios, hostelería, salud, y más. Lo importante es detectar qué proceso te está haciendo perder tiempo.",
+    cta: AUDIT_CTA,
+  },
+  {
+    id: "audit_details",
+    question: "¿Qué incluye la Auditoría?",
+    test: (q) => /audito|gratis|diagnostico|incluye/.test(q),
+    answer: "Nuestra Auditoría gratuita incluye: análisis de tus flujos de trabajo, identificación de cuellos de botella y un diagnóstico de oportunidades de automatización e IA, sin coste.",
+    cta: AUDIT_CTA,
+  },
+  {
+    id: "technologies",
+    question: "¿Qué tecnologías utilizáis?",
+    test: (q) => /tecnolog|herramient|stack|make|n8n|zapier/.test(q),
+    answer: "Trabajamos con automatizaciones (Make, n8n, Zapier), desarrollo a medida (Next.js/React), y modelos de Inteligencia Artificial integrados en tus flujos de trabajo.",
+    cta: MEETING_CTA,
+  },
+  {
+    id: "no_coding",
+    question: "¿Es necesario saber programación?",
+    test: (q) => /programa|conocimiento tecnic|saber programar|se tecnico/.test(q),
+    answer: "Para nada. Nosotros nos encargamos de toda la implementación y formamos a tu equipo para que la transición sea fluida.",
+    cta: AUDIT_CTA,
+  },
+  {
+    id: "how_we_work",
+    question: "¿Cómo trabajáis en Axentia?",
+    test: (q) => /trabaj|funcion|que es axentia|como es el proceso/.test(q),
+    answer: "Primero auditamos tus procesos (ventas, administración, operaciones) y detectamos cuellos de botella. Luego diseñamos e implementamos las herramientas a medida, con soporte y formación para tu equipo.",
+    cta: AUDIT_CTA,
+  },
 ];
+
+const PRESET_IDS = ["how_we_work", "audit_details", "technologies", "individuals", "pricing", "no_coding"];
+const PRESETS = PRESET_IDS.map((id) => INTENTS.find((i) => i.id === id)!);
+
+const FALLBACK_ANSWERS = [
+  "No estoy segura de haber entendido bien tu consulta. Puedo contarte cómo trabajamos, qué incluye la auditoría gratuita, qué tecnologías usamos o si trabajamos con personas físicas. Si preferís, te paso con el equipo por WhatsApp.",
+  "Esa consulta me queda un poco grande todavía. Te recomiendo pedir la auditoría gratuita para que lo veamos en detalle, o hablar directo con el equipo por WhatsApp.",
+];
+let fallbackIndex = 0;
+
+function getBotResponse(rawText: string): { text: string; cta?: Message["cta"] } {
+  const query = normalize(rawText);
+  const intent = INTENTS.find((i) => i.test(query));
+  if (intent) {
+    return { text: intent.answer, cta: intent.cta };
+  }
+  const text = FALLBACK_ANSWERS[fallbackIndex % FALLBACK_ANSWERS.length];
+  fallbackIndex += 1;
+  return { text, cta: WHATSAPP_CTA };
+}
 
 let msgId = 0;
 const nextMsgId = () => `msg-${++msgId}`;
@@ -59,38 +185,23 @@ export default function FloatingChatWidget() {
     setInputValue("");
     setIsTyping(true);
 
+    const { text: answer, cta } = getBotResponse(text);
+
     setTimeout(() => {
       setIsTyping(false);
-
-      let matchedAns = "";
-      const query = text.toLowerCase();
-
-      if (query.includes("trabaj") || query.includes("funcion") || query.includes("que es")) {
-        matchedAns = PRESETS[0].a;
-      } else if (query.includes("audito") || query.includes("gratis") || query.includes("diagnostico")) {
-        matchedAns = PRESETS[1].a;
-      } else if (query.includes("tecnolog") || query.includes("herramient") || query.includes("stack")) {
-        matchedAns = PRESETS[2].a;
-      } else if (query.includes("program") || query.includes("tecnic") || query.includes("saber")) {
-        matchedAns = PRESETS[3].a;
-      } else {
-        matchedAns = "En Axentia analizamos cada caso de forma consultiva para diseñar herramientas que automaticen tareas y ahorren tiempo. Te recomiendo pedir la auditoría gratuita para que lo veamos en detalle.";
-      }
-
       const botMsg: Message = {
         id: nextMsgId(),
         sender: "bot",
-        text: matchedAns,
+        text: answer,
         timestamp: new Date(),
-        cta: { label: "Solicitar auditoría gratis", action: "audit" },
+        cta,
       };
-
       setMessages((prev) => [...prev, botMsg]);
     }, 1000);
   };
 
-  const handlePresetClick = (q: string, a: string) => {
-    const userMsg: Message = { id: nextMsgId(), sender: "user", text: q, timestamp: new Date() };
+  const handlePresetClick = (intent: Intent) => {
+    const userMsg: Message = { id: nextMsgId(), sender: "user", text: intent.question, timestamp: new Date() };
     setMessages((prev) => [...prev, userMsg]);
     setIsTyping(true);
 
@@ -101,17 +212,23 @@ export default function FloatingChatWidget() {
         {
           id: nextMsgId(),
           sender: "bot",
-          text: a,
+          text: intent.answer,
           timestamp: new Date(),
-          cta: q.includes("tecnologías")
-            ? { label: "Agendar una llamada", action: "meeting" }
-            : { label: "Solicitar auditoría gratis", action: "audit" },
+          cta: intent.cta,
         },
       ]);
     }, 900);
   };
 
-  const handleCtaClick = (action: "audit" | "meeting") => {
+  const handleCtaClick = (action: CtaAction) => {
+    if (action === "whatsapp") {
+      window.open(
+        `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hola Axentia, vengo del chat de la web y quería hacerles una consulta.")}`,
+        "_blank",
+        "noopener,noreferrer"
+      );
+      return;
+    }
     setIsOpen(false);
     if (action === "meeting") {
       openModal();
@@ -174,6 +291,8 @@ export default function FloatingChatWidget() {
                       >
                         {msg.cta.action === "meeting" ? (
                           <Calendar className="w-3.5 h-3.5" />
+                        ) : msg.cta.action === "whatsapp" ? (
+                          <MessageCircle className="w-3.5 h-3.5" />
                         ) : (
                           <Sparkles className="w-3.5 h-3.5" />
                         )}
@@ -205,11 +324,11 @@ export default function FloatingChatWidget() {
                 <div className="flex flex-wrap gap-1.5">
                   {PRESETS.map((preset) => (
                     <button
-                      key={preset.q}
-                      onClick={() => handlePresetClick(preset.q, preset.a)}
+                      key={preset.id}
+                      onClick={() => handlePresetClick(preset)}
                       className="text-xs bg-white hover:bg-primary/10 border border-navy/10 text-navy/70 hover:text-navy px-2.5 py-1.5 rounded-lg transition-all text-left cursor-pointer"
                     >
-                      {preset.q}
+                      {preset.question}
                     </button>
                   ))}
                 </div>
@@ -241,7 +360,7 @@ export default function FloatingChatWidget() {
       {/* Floating Buttons Bar */}
       <div className="flex items-center gap-3">
         <a
-          href="https://wa.me/34722406500?text=Hola%20Axentia,%20me%20gustar%C3%ADa%20solicitar%20una%20auditor%C3%ADa%20tecnol%C3%B3gica%20gratuita%20de%20mi%20negocio."
+          href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hola Axentia, me gustaría solicitar una auditoría tecnológica gratuita de mi negocio.")}`}
           target="_blank"
           rel="noopener noreferrer"
           className="p-3.5 bg-green-500 text-white rounded-full hover:bg-green-600 shadow-lg shadow-green-500/25 hover:scale-110 transition-all flex items-center justify-center shrink-0 cursor-pointer duration-300 relative group"
@@ -256,10 +375,10 @@ export default function FloatingChatWidget() {
           <AnimatePresence>
             {showTooltip && !isOpen && (
               <motion.div
-                initial={{ opacity: 0, x: -10, y: -2 }}
-                animate={{ opacity: 1, x: 0, y: -2 }}
-                exit={{ opacity: 0, x: -10 }}
-                className="absolute right-full top-1/2 -translate-y-1/2 mr-3 bg-navy text-white text-xs py-2 px-3.5 rounded-xl shadow-xl flex items-center gap-2 whitespace-nowrap pointer-events-none"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                className="absolute bottom-full right-0 mb-3 bg-navy text-white text-xs py-2 px-3.5 rounded-xl shadow-xl flex items-center gap-2 whitespace-nowrap pointer-events-none"
               >
                 <Sparkles className="w-3.5 h-3.5 text-primary" />
                 <span>¿Hablamos con nuestra asistente?</span>

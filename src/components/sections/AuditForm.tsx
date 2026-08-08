@@ -16,6 +16,7 @@ const NEEDS_OPTIONS = [
 ];
 
 const initialFormState = {
+  clientType: "empresa" as "empresa" | "particular",
   companyName: "",
   sector: "",
   teamSize: "1-10",
@@ -39,6 +40,10 @@ export default function AuditForm() {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const setClientType = (clientType: "empresa" | "particular") => {
+    setFormData((prev) => ({ ...prev, clientType }));
   };
 
   const toggleNeed = (id: string) => {
@@ -90,7 +95,9 @@ export default function AuditForm() {
           </p>
           <a
             href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-              `Hola, soy ${formData.fullName} de ${formData.companyName || "mi empresa"}. Acabo de solicitar la auditoría gratuita en la web.`
+              formData.clientType === "particular"
+                ? `Hola, soy ${formData.fullName}. Acabo de solicitar la auditoría gratuita en la web.`
+                : `Hola, soy ${formData.fullName} de ${formData.companyName || "mi empresa"}. Acabo de solicitar la auditoría gratuita en la web.`
             )}`}
             target="_blank"
             rel="noopener noreferrer"
@@ -117,57 +124,109 @@ export default function AuditForm() {
         </div>
 
         <form onSubmit={handleSubmit} className="soft-card rounded-2xl p-6 sm:p-8 space-y-6">
-          {/* Empresa */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="companyName" className="block text-sm font-semibold text-navy mb-1.5">
-                Nombre de la empresa
-              </label>
-              <input
-                id="companyName"
-                name="companyName"
-                type="text"
-                required
-                value={formData.companyName}
-                onChange={handleChange}
-                placeholder="Mi Empresa S.L."
-                className="w-full bg-white border border-navy/15 rounded-xl px-4 py-3 text-sm text-navy placeholder-navy/30 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-              />
+          {/* Tipo de cliente */}
+          <div>
+            <span className="block text-sm font-semibold text-navy mb-2.5">
+              Consulto como
+            </span>
+            <div className="grid grid-cols-2 gap-2.5">
+              <button
+                type="button"
+                onClick={() => setClientType("empresa")}
+                className={`p-3 rounded-xl border text-sm font-medium transition-all cursor-pointer ${
+                  formData.clientType === "empresa"
+                    ? "bg-primary/10 border-primary text-navy"
+                    : "bg-white border-navy/10 text-navy/70 hover:border-navy/20"
+                }`}
+              >
+                Empresa
+              </button>
+              <button
+                type="button"
+                onClick={() => setClientType("particular")}
+                className={`p-3 rounded-xl border text-sm font-medium transition-all cursor-pointer ${
+                  formData.clientType === "particular"
+                    ? "bg-primary/10 border-primary text-navy"
+                    : "bg-white border-navy/10 text-navy/70 hover:border-navy/20"
+                }`}
+              >
+                Persona física
+              </button>
             </div>
+          </div>
+
+          {/* Empresa */}
+          {formData.clientType === "empresa" && (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="companyName" className="block text-sm font-semibold text-navy mb-1.5">
+                    Nombre de la empresa
+                  </label>
+                  <input
+                    id="companyName"
+                    name="companyName"
+                    type="text"
+                    required
+                    value={formData.companyName}
+                    onChange={handleChange}
+                    placeholder="Mi Empresa S.L."
+                    className="w-full bg-white border border-navy/15 rounded-xl px-4 py-3 text-sm text-navy placeholder-navy/30 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="sector" className="block text-sm font-semibold text-navy mb-1.5">
+                    Sector / actividad
+                  </label>
+                  <input
+                    id="sector"
+                    name="sector"
+                    type="text"
+                    required
+                    value={formData.sector}
+                    onChange={handleChange}
+                    placeholder="Ej. Comercio, servicios, hostelería..."
+                    className="w-full bg-white border border-navy/15 rounded-xl px-4 py-3 text-sm text-navy placeholder-navy/30 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="teamSize" className="block text-sm font-semibold text-navy mb-1.5">
+                  Cantidad aproximada de empleados
+                </label>
+                <select
+                  id="teamSize"
+                  name="teamSize"
+                  value={formData.teamSize}
+                  onChange={handleChange}
+                  className="w-full bg-white border border-navy/15 rounded-xl px-4 py-3 text-sm text-navy focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                >
+                  <option value="1-10">1 - 10 empleados</option>
+                  <option value="11-50">11 - 50 empleados</option>
+                  <option value="51-200">51 - 200 empleados</option>
+                  <option value="200+">Más de 200 empleados</option>
+                </select>
+              </div>
+            </>
+          )}
+
+          {formData.clientType === "particular" && (
             <div>
               <label htmlFor="sector" className="block text-sm font-semibold text-navy mb-1.5">
-                Sector / actividad
+                Área de interés (opcional)
               </label>
               <input
                 id="sector"
                 name="sector"
                 type="text"
-                required
                 value={formData.sector}
                 onChange={handleChange}
-                placeholder="Ej. Comercio, servicios, hostelería..."
+                placeholder="Ej. Finanzas personales, trámites, organización..."
                 className="w-full bg-white border border-navy/15 rounded-xl px-4 py-3 text-sm text-navy placeholder-navy/30 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
               />
             </div>
-          </div>
-
-          <div>
-            <label htmlFor="teamSize" className="block text-sm font-semibold text-navy mb-1.5">
-              Cantidad aproximada de empleados
-            </label>
-            <select
-              id="teamSize"
-              name="teamSize"
-              value={formData.teamSize}
-              onChange={handleChange}
-              className="w-full bg-white border border-navy/15 rounded-xl px-4 py-3 text-sm text-navy focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-            >
-              <option value="1-10">1 - 10 empleados</option>
-              <option value="11-50">11 - 50 empleados</option>
-              <option value="51-200">51 - 200 empleados</option>
-              <option value="200+">Más de 200 empleados</option>
-            </select>
-          </div>
+          )}
 
           {/* Necesidades */}
           <div>
