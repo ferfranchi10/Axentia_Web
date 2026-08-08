@@ -19,7 +19,9 @@
       "Bash(git remote *)",
       "Bash(git push *)",
       "Bash(command -v gh)",
-      "Bash(git ls-remote *)"
+      "Bash(git ls-remote *)",
+      "Bash(git fetch *)",
+      "Bash(echo \"exit:$?\")"
     ]
   }
 }
