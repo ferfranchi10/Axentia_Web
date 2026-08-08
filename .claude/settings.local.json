@@ -25,7 +25,14 @@
       "Bash(command -v winget)",
       "Bash(winget --version)",
       "mcp__claude-in-chrome__tabs_context_mcp",
-      "Bash(git branch *)"
+      "Bash(git branch *)",
+      "Bash(curl -s -o /dev/null -w \"HTTP status: %{http_code}\\\\n\" \"https://axentia-web.vercel.app/?cachebust=$\\(date +%s\\)\")",
+      "Bash(curl -s -D - -o /tmp/body.html \"https://axentia-web.vercel.app/\")",
+      "Bash(curl -s -D - -o /tmp/body2.html \"https://axentia-e7jumbggn-ferfranchi10s-projects.vercel.app/\")",
+      "Read(//tmp/**)",
+      "Bash(curl -s -D - -o /tmp/body3.html \"https://axentia-web.vercel.app/?cb=$\\(date +%s\\)\")",
+      "Bash(curl -s -D - -o /tmp/body4.html \"https://axentia-e7jumbggn-ferfranchi10s-projects.vercel.app/?cb=$\\(date +%s\\)\")",
+      "Bash(rm -rf .next)"
     ]
   }
 }
