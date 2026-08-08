@@ -3,173 +3,158 @@ import nodemailer from "nodemailer";
 
 const ADMIN_EMAIL = "axentia.consulting@gmail.com";
 
-// Dictionary for readable values
-const GOAL_LABELS: Record<string, string> = {
-  save_time: "Ahorrar tiempo y automatizar tareas manuales",
-  increase_sales: "Aumentar ventas y mejorar seguimiento de clientes",
-  team_coordination: "Mejorar la coordinación del equipo y flujos de información",
-  modernize_systems: "Modernizar sistemas antiguos y escalar tecnología",
+const NEEDS_LABELS: Record<string, string> = {
+  facturacion: "Facturación",
+  gestion_administrativa: "Gestión administrativa",
+  seguimiento_clientes: "Seguimiento de clientes",
+  reportes_automaticos: "Reportes automáticos",
+  integracion_sistemas: "Integración de sistemas",
+  ia_automatizacion: "IA / automatización",
+  otro: "Otro",
 };
 
-const BOTTLENECK_LABELS: Record<string, string> = {
-  manual_tasks: "Tareas manuales redundantes y pérdida de tiempo",
-  data_silos: "Información dispersa en mil herramientas diferentes",
-  lost_leads: "Falta de seguimiento a clientes / Pérdida de ventas",
-  team_coordination: "Descoordinación de equipos y flujos",
-  outdated_tech: "Sistemas antiguos que frenan el crecimiento",
-  other: "Otros (especificado por el cliente)",
-};
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MAX_TEXT_LENGTH = 200;
+const MAX_DESCRIPTION_LENGTH = 3000;
 
-const TOOL_LABELS: Record<string, string> = {
-  excel: "Excel / Google Sheets",
-  crm: "CRM (Hubspot, Salesforce, etc.)",
-  erp: "ERP / Software de Facturación",
-  whatsapp: "WhatsApp manual",
-  email_marketing: "Email Marketing",
-  none: "Ninguna de las anteriores / Empezamos de cero",
-};
+function escapeHtml(value: unknown): string {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function truncate(value: string, max: number): string {
+  return value.length > max ? value.slice(0, max) : value;
+}
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const {
-      name,
-      email,
-      company,
+      companyName,
+      sector,
       teamSize,
+      needs = [],
+      otherNeed,
+      description,
+      fullName,
+      email,
       phone,
-      bottleneck,
-      otherBottleneck,
-      currentTools = [],
-      manualProcess,
-      toolsToConnect,
-      mainGoal,
     } = body;
 
-    // Basic validation
-    if (!name || !email || !company) {
-      return NextResponse.json({ error: "Faltan campos obligatorios: nombre, email o empresa." }, { status: 400 });
+    // Basic required-field validation
+    if (!companyName || !sector || !fullName || !email || !phone || !description) {
+      return NextResponse.json(
+        { error: "Faltan campos obligatorios. Revisá el formulario e intentá de nuevo." },
+        { status: 400 }
+      );
     }
 
-    // Format human-readable lists
-    const selectedTools = currentTools
-      .map((t: string) => TOOL_LABELS[t] || t)
-      .join(", ") || "Ninguna especificada";
+    if (typeof email !== "string" || !EMAIL_REGEX.test(email)) {
+      return NextResponse.json({ error: "El email ingresado no es válido." }, { status: 400 });
+    }
 
-    const bottleneckText = bottleneck === "other" 
-      ? `Otro: "${otherBottleneck || "No especificado"}"`
-      : (BOTTLENECK_LABELS[bottleneck] || bottleneck);
+    if (!Array.isArray(needs)) {
+      return NextResponse.json({ error: "Solicitud inválida." }, { status: 400 });
+    }
 
-    const goalText = GOAL_LABELS[mainGoal] || mainGoal || "No especificado";
+    // Sanitize + cap length on every field before it's interpolated into email HTML
+    const safeCompanyName = escapeHtml(truncate(String(companyName), MAX_TEXT_LENGTH));
+    const safeSector = escapeHtml(truncate(String(sector), MAX_TEXT_LENGTH));
+    const safeTeamSize = escapeHtml(truncate(String(teamSize || "No especificado"), MAX_TEXT_LENGTH));
+    const safeFullName = escapeHtml(truncate(String(fullName), MAX_TEXT_LENGTH));
+    const safeEmail = escapeHtml(truncate(String(email), MAX_TEXT_LENGTH));
+    const safePhone = escapeHtml(truncate(String(phone), MAX_TEXT_LENGTH));
+    const safeDescription = escapeHtml(truncate(String(description), MAX_DESCRIPTION_LENGTH));
+    const safeOtherNeed = otherNeed ? escapeHtml(truncate(String(otherNeed), MAX_TEXT_LENGTH)) : "";
 
-    // Build Email body for Admin Notification
+    const needsText =
+      needs
+        .filter((id: unknown): id is string => typeof id === "string")
+        .map((id: string) => (id === "otro" && safeOtherNeed ? `Otro: ${safeOtherNeed}` : NEEDS_LABELS[id] || escapeHtml(id)))
+        .join(", ") || "No especificadas";
+
+    // Admin notification email
     const adminEmailHtml = `
-      <div style="font-family: sans-serif; max-width: 600px; color: #1e293b; line-height: 1.6;">
-        <h2 style="color: #06b6d4; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
-          ¡Nueva Solicitud de Auditoría Tecnológica!
+      <div style="font-family: Inter, sans-serif; max-width: 600px; color: #0b1f33; line-height: 1.6;">
+        <h2 style="color: #4da8ff; border-bottom: 2px solid #f5f7fa; padding-bottom: 10px;">
+          Nueva solicitud de auditoría gratuita
         </h2>
-        <p>Se ha recibido una nueva solicitud detallada a través de la web:</p>
-        
+        <p>Se recibió una nueva solicitud a través de la web de Axentia:</p>
+
         <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-          <tr style="background-color: #f8fafc;">
-            <td style="padding: 10px; font-weight: bold; width: 40%;">Nombre del contacto:</td>
-            <td style="padding: 10px;">${name}</td>
+          <tr style="background-color: #f5f7fa;">
+            <td style="padding: 10px; font-weight: bold; width: 40%;">Empresa:</td>
+            <td style="padding: 10px;">${safeCompanyName}</td>
           </tr>
           <tr>
-            <td style="padding: 10px; font-weight: bold;">Empresa:</td>
-            <td style="padding: 10px;">${company}</td>
+            <td style="padding: 10px; font-weight: bold;">Sector:</td>
+            <td style="padding: 10px;">${safeSector}</td>
           </tr>
-          <tr style="background-color: #f8fafc;">
+          <tr style="background-color: #f5f7fa;">
+            <td style="padding: 10px; font-weight: bold;">Empleados:</td>
+            <td style="padding: 10px;">${safeTeamSize}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px; font-weight: bold;">Necesidades seleccionadas:</td>
+            <td style="padding: 10px;">${needsText}</td>
+          </tr>
+          <tr style="background-color: #f5f7fa;">
+            <td style="padding: 10px; font-weight: bold;">Contacto:</td>
+            <td style="padding: 10px;">${safeFullName}</td>
+          </tr>
+          <tr>
             <td style="padding: 10px; font-weight: bold;">Email:</td>
-            <td style="padding: 10px;"><a href="mailto:${email}">${email}</a></td>
+            <td style="padding: 10px;"><a href="mailto:${safeEmail}">${safeEmail}</a></td>
           </tr>
-          <tr>
+          <tr style="background-color: #f5f7fa;">
             <td style="padding: 10px; font-weight: bold;">Teléfono / WhatsApp:</td>
-            <td style="padding: 10px;">${phone || "No proporcionado"}</td>
-          </tr>
-          <tr style="background-color: #f8fafc;">
-            <td style="padding: 10px; font-weight: bold;">Tamaño del equipo:</td>
-            <td style="padding: 10px;">${teamSize} empleados</td>
-          </tr>
-          <tr>
-            <td style="padding: 10px; font-weight: bold;">Objetivo principal:</td>
-            <td style="padding: 10px;">${goalText}</td>
-          </tr>
-          <tr style="background-color: #f8fafc;">
-            <td style="padding: 10px; font-weight: bold;">Mayor cuello de botella:</td>
-            <td style="padding: 10px; font-weight: #475569;">${bottleneckText}</td>
-          </tr>
-          <tr>
-            <td style="padding: 10px; font-weight: bold;">Herramientas actuales:</td>
-            <td style="padding: 10px;">${selectedTools}</td>
+            <td style="padding: 10px;">${safePhone}</td>
           </tr>
         </table>
 
-        <div style="margin-top: 20px; background-color: #f1f5f9; padding: 15px; rounded: 8px;">
-          <h4 style="margin-top: 0; color: #0f172a;">¿Qué proceso manual le quita más tiempo?</h4>
-          <p style="white-space: pre-wrap; font-style: italic; color: #334155; margin-bottom: 15px;">
-            ${manualProcess || "No especificado"}
-          </p>
-          
-          <h4 style="color: #0f172a; margin-top: 0;">¿Qué integraciones o automatizaciones le gustaría priorizar?</h4>
-          <p style="white-space: pre-wrap; font-style: italic; color: #334155; margin-bottom: 0;">
-            ${toolsToConnect || "No especificado"}
-          </p>
+        <div style="margin-top: 20px; background-color: #f5f7fa; padding: 15px; border-radius: 8px;">
+          <h4 style="margin-top: 0; color: #0b1f33;">Descripción del problema:</h4>
+          <p style="white-space: pre-wrap; color: #334155; margin-bottom: 0;">${safeDescription}</p>
         </div>
       </div>
     `;
 
-    // Build Email body for Customer Confirmation
+    // Customer confirmation email
     const customerEmailHtml = `
-      <div style="font-family: sans-serif; max-width: 600px; color: #1e293b; line-height: 1.6; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);">
-        <div style="background: linear-gradient(135deg, #06b6d4, #6366f1); padding: 30px; text-align: center; color: white;">
-          <h1 style="margin: 0; font-size: 24px; font-weight: bold; letter-spacing: -0.025em;">
-            ¡Hola, ${name}!
-          </h1>
-          <p style="margin: 8px 0 0 0; opacity: 0.9; font-size: 15px;">
-            Recibimos tu solicitud para transformar la tecnología de <strong>${company}</strong> 🚀
-          </p>
+      <div style="font-family: Inter, sans-serif; max-width: 600px; color: #0b1f33; line-height: 1.6; background-color: #ffffff; border: 1px solid #f5f7fa; border-radius: 16px; overflow: hidden;">
+        <div style="background: #4da8ff; padding: 30px; text-align: center; color: white;">
+          <h1 style="margin: 0; font-size: 22px; font-weight: bold;">AXENTIA</h1>
         </div>
-        
         <div style="padding: 30px;">
-          <p style="font-size: 16px; font-weight: 500; color: #0f172a; margin-top: 0;">
-            ¡Es un placer saludarte! Qué alegría que hayas dado este paso.
-          </p>
-          
-          <p>
-            En <strong>Axentia</strong> no creemos en soluciones genéricas ni plantillas prefabricadas. Por eso, nuestro equipo de ingenieros ya está analizando detalladamente los cuellos de botella que nos has compartido. 
-          </p>
-          
-          <p>
-            Queremos diseñar el <strong>&quot;traje tecnológico a medida&quot;</strong> perfecto para tu negocio, enfocado en liberar a tu equipo de tareas manuales repetitivas y potenciar vuestra eficiencia al máximo.
-          </p>
-          
-          <div style="background-color: #f8fafc; border-left: 4px solid #06b6d4; padding: 15px; margin: 25px 0; border-radius: 4px;">
-            <h4 style="margin: 0 0 5px 0; color: #0f172a; font-size: 14px;">¿Cuáles son los siguientes pasos?</h4>
-            <ol style="margin: 0; padding-left: 20px; font-size: 13.5px; color: #475569; line-height: 1.8;">
-              <li><strong>Diagnóstico Técnico:</strong> Evaluamos la viabilidad de integraciones para automatizar tus procesos.</li>
-              <li><strong>Sesión Estratégica:</strong> Nos pondremos en contacto contigo (vía WhatsApp o email) para agendar una videollamada corta, repasar el diagnóstico y entregarte el borrador de tu plan tecnológico sin ningún coste.</li>
-            </ol>
-          </div>
+          <p>Hola ${safeFullName},</p>
 
-          <p style="font-size: 16px; font-weight: bold; color: #6366f1; text-align: center; margin: 30px 0;">
-            ¡Tenemos muchísimas ganas de ponernos en marcha. Juntos haremos grandes cosas! 🤝✨
+          <p>Gracias por solicitar una auditoría gratuita con Axentia.</p>
+
+          <p>
+            Hemos recibido correctamente la información de tu empresa y nuestro equipo analizará tu caso
+            para identificar posibles oportunidades de mejora, automatización o integración tecnológica.
           </p>
-          
+
+          <p>
+            En los próximos días nos pondremos en contacto para explicarte los siguientes pasos y coordinar
+            una primera reunión.
+          </p>
+
+          <p>Gracias por confiar en Axentia.</p>
+
           <p style="margin-bottom: 0;">
-            Un abrazo,<br />
-            <strong>El Comité Tecnológico de Axentia</strong>
+            <strong>Axentia</strong><br />
+            Consultoría Tecnológica y Energética<br />
+            <a href="mailto:${ADMIN_EMAIL}" style="color: #4da8ff; text-decoration: none;">${ADMIN_EMAIL}</a>
           </p>
-        </div>
-        
-        <div style="background-color: #f1f5f9; padding: 20px; text-align: center; font-size: 11px; color: #64748b; border-top: 1px solid #e2e8f0;">
-          Axentia Consulting · Soluciones Tecnológicas y Automatización a Medida<br />
-          <a href="mailto:axentia.consulting@gmail.com" style="color: #06b6d4; text-decoration: none;">axentia.consulting@gmail.com</a>
         </div>
       </div>
     `;
 
-    // Configure Mailer Transport
     const smtpUser = process.env.SMTP_USER || ADMIN_EMAIL;
     const smtpPass = process.env.SMTP_PASS;
 
@@ -179,38 +164,38 @@ export async function POST(request: Request) {
       console.warn("SMTP_PASS no está definido en el archivo .env.local.");
       console.warn("Los correos electrónicos se han registrado en el log pero NO se enviaron.");
       console.warn("=========================================================");
-      console.log(`[Notification to Admin]:\nFrom: ${smtpUser}\nTo: ${ADMIN_EMAIL}\nSubject: Nueva Auditoría Tecnológica – ${company}\nBody:\n${adminEmailHtml}`);
-      console.log(`[Confirmation to Customer]:\nFrom: ${ADMIN_EMAIL}\nTo: ${email}\nSubject: ¡Empezamos el viaje! Recibimos tu solicitud de Auditoría en Axentia\nBody:\n${customerEmailHtml}`);
-      
-      return NextResponse.json({ 
-        success: true, 
-        warning: "SMTP_PASS no configurado en servidor. El envío real de correos se omitió." 
+      console.log(`[Notificación interna]\nPara: ${ADMIN_EMAIL}\nAsunto: Nueva solicitud de auditoría gratuita – ${safeCompanyName}\n${adminEmailHtml}`);
+      console.log(`[Confirmación al cliente]\nPara: ${safeEmail}\nAsunto: Hemos recibido tu solicitud – Axentia\n${customerEmailHtml}`);
+
+      return NextResponse.json({
+        success: true,
+        warning: "SMTP_PASS no configurado en el servidor. El envío real de correos se omitió.",
       });
     }
 
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST || "smtp.gmail.com",
       port: parseInt(process.env.SMTP_PORT || "465"),
-      secure: process.env.SMTP_PORT !== "587", // true for 465, false for other ports
+      secure: process.env.SMTP_PORT !== "587",
       auth: {
         user: smtpUser,
         pass: smtpPass,
       },
     });
 
-    // 1. Send notification to admin
+    // 1. Internal notification
     await transporter.sendMail({
-      from: `Axentia Web Form <${smtpUser}>`,
+      from: `Axentia Web <${smtpUser}>`,
       to: ADMIN_EMAIL,
-      subject: `Nueva Auditoría Tecnológica: ${company} (por ${name})`,
+      subject: `Nueva solicitud de auditoría gratuita – ${safeCompanyName}`,
       html: adminEmailHtml,
     });
 
-    // 2. Send confirmation to the customer
+    // 2. Customer confirmation
     await transporter.sendMail({
-      from: `Axentia Consulting <${smtpUser}>`,
+      from: `Axentia <${smtpUser}>`,
       to: email,
-      subject: `¡Empezamos el viaje! Recibimos tu solicitud de Auditoría en Axentia 🚀`,
+      subject: "Hemos recibido tu solicitud – Axentia",
       html: customerEmailHtml,
     });
 
@@ -218,7 +203,7 @@ export async function POST(request: Request) {
   } catch (error: unknown) {
     console.error("Error submitting audit form:", error);
     return NextResponse.json(
-      { error: "Error interno al enviar la solicitud.", details: error instanceof Error ? error.message : "Error desconocido" },
+      { error: "Error interno al enviar la solicitud. Intentá de nuevo en unos minutos." },
       { status: 500 }
     );
   }

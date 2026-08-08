@@ -4,16 +4,8 @@ import Footer from "@/components/layout/Footer";
 
 // Sections
 import Hero from "@/components/sections/Hero";
-import Problem from "@/components/sections/Problem";
-import AxentiaSolution from "@/components/sections/AxentiaSolution";
 import Services from "@/components/sections/Services";
-import Differentiation from "@/components/sections/Differentiation";
-import UseCases from "@/components/sections/UseCases";
-import Methodology from "@/components/sections/Methodology";
-import Testimonials from "@/components/sections/Testimonials";
-import GrowthAuditTool from "@/components/sections/GrowthAuditTool";
-import FAQ from "@/components/sections/FAQ";
-import FinalCTA from "@/components/sections/FinalCTA";
+import AuditForm from "@/components/sections/AuditForm";
 
 // UI
 import BookingModal from "@/components/ui/BookingModal";
@@ -26,24 +18,16 @@ export default function Home() {
 
       <main>
         <Hero />
-        <Problem />
-        <AxentiaSolution />
         <Services />
-        <Differentiation />
-        <UseCases />
-        <Methodology />
-        <Testimonials />
-        <GrowthAuditTool />
-        <FAQ />
-        <FinalCTA />
+        <AuditForm />
       </main>
 
       <Footer />
 
-      {/* Global Modals */}
+      {/* Global Modal */}
       <BookingModal />
 
-      {/* Floating AI Chat + WhatsApp Widget */}
+      {/* Floating Chat + WhatsApp Widget */}
       <FloatingChatWidget />
     </>
   );

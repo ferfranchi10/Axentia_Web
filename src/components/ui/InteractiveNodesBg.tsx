@@ -50,7 +50,7 @@ export default function InteractiveNodesBg() {
         if (!ctx) return;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(6, 182, 212, 0.4)";
+        ctx.fillStyle = "rgba(77, 168, 255, 0.55)";
         ctx.fill();
       }
     }
@@ -107,12 +107,12 @@ export default function InteractiveNodesBg() {
           const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
 
           if (dist < connectionDist) {
-            const alpha = (1 - dist / connectionDist) * 0.12;
+            const alpha = (1 - dist / connectionDist) * 0.15;
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
             ctx.lineTo(p2.x, p2.y);
-            // Dynamic cyan/blue light gradients
-            ctx.strokeStyle = `rgba(6, 182, 212, ${alpha})`;
+            // Soft celeste connections
+            ctx.strokeStyle = `rgba(77, 168, 255, ${alpha})`;
             ctx.lineWidth = 0.8;
             ctx.stroke();
           }
@@ -122,11 +122,11 @@ export default function InteractiveNodesBg() {
         if (mouse.active) {
           const distToMouse = Math.hypot(p1.x - mouse.x, p1.y - mouse.y);
           if (distToMouse < connectionDist * 1.3) {
-            const alpha = (1 - distToMouse / (connectionDist * 1.3)) * 0.25;
+            const alpha = (1 - distToMouse / (connectionDist * 1.3)) * 0.2;
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
             ctx.lineTo(mouse.x, mouse.y);
-            ctx.strokeStyle = `rgba(139, 92, 246, ${alpha})`; // Violet laser for mouse interactions
+            ctx.strokeStyle = `rgba(11, 31, 51, ${alpha})`; // Navy accent for mouse interactions
             ctx.lineWidth = 1.0;
             ctx.stroke();
           }
@@ -148,5 +148,5 @@ export default function InteractiveNodesBg() {
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block pointer-events-none opacity-80" />;
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block pointer-events-none opacity-60" />;
 }
