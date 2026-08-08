@@ -21,7 +21,11 @@
       "Bash(command -v gh)",
       "Bash(git ls-remote *)",
       "Bash(git fetch *)",
-      "Bash(echo \"exit:$?\")"
+      "Bash(echo \"exit:$?\")",
+      "Bash(command -v winget)",
+      "Bash(winget --version)",
+      "mcp__claude-in-chrome__tabs_context_mcp",
+      "Bash(git branch *)"
     ]
   }
 }
