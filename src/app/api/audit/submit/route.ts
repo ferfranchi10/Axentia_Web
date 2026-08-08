@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 
 const ADMIN_EMAIL = "axentia.consulting@gmail.com";
+const SITE_URL = "https://axentia-web.vercel.app";
+const LOGO_URL = `${SITE_URL}/brand/axentia-logo-email.png`;
 
 const NEEDS_LABELS: Record<string, string> = {
   facturacion: "Facturación",
@@ -80,6 +82,7 @@ export async function POST(request: Request) {
     // Admin notification email
     const adminEmailHtml = `
       <div style="font-family: Inter, sans-serif; max-width: 600px; color: #0b1f33; line-height: 1.6;">
+        <img src="${LOGO_URL}" alt="AXENTIA" width="140" style="display: block; margin-bottom: 20px;" />
         <h2 style="color: #4da8ff; border-bottom: 2px solid #f5f7fa; padding-bottom: 10px;">
           Nueva solicitud de auditoría gratuita
         </h2>
@@ -126,8 +129,8 @@ export async function POST(request: Request) {
     // Customer confirmation email
     const customerEmailHtml = `
       <div style="font-family: Inter, sans-serif; max-width: 600px; color: #0b1f33; line-height: 1.6; background-color: #ffffff; border: 1px solid #f5f7fa; border-radius: 16px; overflow: hidden;">
-        <div style="background: #4da8ff; padding: 30px; text-align: center; color: white;">
-          <h1 style="margin: 0; font-size: 22px; font-weight: bold;">AXENTIA</h1>
+        <div style="background: #f5f7fa; padding: 30px; text-align: center;">
+          <img src="${LOGO_URL}" alt="AXENTIA" width="180" style="display: block; margin: 0 auto;" />
         </div>
         <div style="padding: 30px;">
           <p>Hola ${safeFullName},</p>

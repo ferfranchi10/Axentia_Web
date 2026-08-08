@@ -32,7 +32,9 @@
       "Read(//tmp/**)",
       "Bash(curl -s -D - -o /tmp/body3.html \"https://axentia-web.vercel.app/?cb=$\\(date +%s\\)\")",
       "Bash(curl -s -D - -o /tmp/body4.html \"https://axentia-e7jumbggn-ferfranchi10s-projects.vercel.app/?cb=$\\(date +%s\\)\")",
-      "Bash(rm -rf .next)"
+      "Bash(rm -rf .next)",
+      "Bash(curl -s -D - -o /tmp/final_check.html \"https://axentia-web.vercel.app/?cb=$\\(date +%s\\)\")",
+      "Bash(python -c ' *)"
     ]
   }
 }
