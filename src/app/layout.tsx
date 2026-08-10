@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { ModalProvider } from "@/context/ModalContext";
+import CookieConsent from "@/components/ui/CookieConsent";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -77,6 +78,7 @@ export default function RootLayout({
             {children}
           </ModalProvider>
         </div>
+        <CookieConsent />
       </body>
     </html>
   );

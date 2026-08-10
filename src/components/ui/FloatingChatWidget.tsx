@@ -316,7 +316,7 @@ export default function FloatingChatWidget() {
             </div>
 
             {/* Quick Presets */}
-            {messages.length === 1 && !isTyping && (
+            {!isTyping && messages[messages.length - 1]?.sender === "bot" && (
               <div className="p-3 border-t border-navy/5 bg-bg-soft space-y-1.5">
                 <p className="text-[10px] uppercase tracking-wider text-text-muted font-semibold px-1">
                   Preguntas frecuentes
@@ -331,6 +331,13 @@ export default function FloatingChatWidget() {
                       {preset.question}
                     </button>
                   ))}
+                  <button
+                    onClick={() => handleCtaClick("whatsapp")}
+                    className="flex items-center gap-1.5 text-xs bg-green-50 hover:bg-green-100 border border-green-200 text-green-700 px-2.5 py-1.5 rounded-lg transition-all text-left cursor-pointer"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5 shrink-0" />
+                    Hablar por WhatsApp
+                  </button>
                 </div>
               </div>
             )}
