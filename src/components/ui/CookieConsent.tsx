@@ -16,6 +16,8 @@ export default function CookieConsent() {
   useEffect(() => {
     const stored = window.localStorage.getItem(CONSENT_KEY);
     if (stored === "accepted" || stored === "rejected") {
+      // Reading localStorage must happen post-mount to avoid SSR/client hydration mismatch.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setConsent(stored);
     }
     setHydrated(true);
