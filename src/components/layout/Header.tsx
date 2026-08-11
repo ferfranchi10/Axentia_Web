@@ -18,6 +18,7 @@ export default function Header() {
 
   const navLinks = [
     { label: "Servicios", href: "#servicios" },
+    { label: "Quiénes somos", href: "#quienes-somos" },
     { label: "Auditoría gratuita", href: "#formulario" },
   ];
 
