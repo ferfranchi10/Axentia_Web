@@ -37,6 +37,10 @@ yarn-error.log*
 # vercel
 .vercel
 
+# planificación de negocio (no es código, no debe ser público)
+\# Plan de Crecimiento – Axentia.md
+\# Plan de Migracion de Marca – Axentia a Fernando Franchi.md
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

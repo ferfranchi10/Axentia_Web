@@ -1,0 +1,203 @@
+// Motor de Prospección — esquema de base de datos
+// Ver DATABASE.md en la raíz del proyecto para la explicación de cada tabla.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Place {
+  id            String    @id @default(cuid())
+  placeId       String    @unique
+  source        String    @default("google_places")
+  lastCheckedAt DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lead          Lead?
+}
+
+model Lead {
+  id      String  @id @default(cuid())
+  placeId String? @unique
+  place   Place?  @relation(fields: [placeId], references: [id], onDelete: SetNull)
+
+  companyName String
+  sector      String
+  subsector   String?
+  city        String
+  province    String?
+  country     String @default("ES")
+
+  website     String?
+  phone       String?
+  email       String?
+  contactName String?
+  contactRole String?
+
+  companySize        String?
+  estimatedEmployees Int?
+
+  digitalPresenceScore   Int?
+  technologyNeedScore    Int?
+  economicPotentialScore Int?
+  serviceFitScore        Int?
+  contactabilityScore    Int?
+  leadScore              Int?
+  priority               String?
+
+  status       String  @default("NUEVO")
+  doNotContact Boolean @default(false)
+
+  notes         String?
+  lastContactAt DateTime?
+  nextContactAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  audits        DigitalAudit[]
+  opportunities Opportunity[]
+  contacts      Contact[]
+  activities    Activity[]
+  tasks         Task[]
+
+  @@index([sector])
+  @@index([city])
+  @@index([status])
+  @@index([leadScore])
+}
+
+model DigitalAudit {
+  id     String @id @default(cuid())
+  leadId String
+  lead   Lead   @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  websiteExists  Boolean?
+  websiteQuality Int?
+  mobileQuality  Int?
+  httpsEnabled   Boolean?
+
+  contactForm        Boolean?
+  onlineBooking      Boolean?
+  whatsapp           Boolean?
+  crmDetected        Boolean?
+  automationDetected Boolean?
+  customerPortal     Boolean?
+  onlinePayments     Boolean?
+  socialPresence     Boolean?
+
+  technologyScore Int?
+  auditStatus     String?
+  auditedAt       DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([leadId])
+}
+
+model Opportunity {
+  id     String @id @default(cuid())
+  leadId String
+  lead   Lead   @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  category    String
+  title       String
+  description String?
+  evidence    String?
+  priority    String?
+
+  recommendedService String?
+  estimatedValueMin  Int?
+  estimatedValueMax  Int?
+
+  confidence Int?
+  status     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([leadId])
+  @@index([category])
+}
+
+model Contact {
+  id     String @id @default(cuid())
+  leadId String
+  lead   Lead   @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  name  String
+  role  String?
+  email String?
+  phone String?
+
+  source        String?
+  consentStatus String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([leadId])
+}
+
+model Activity {
+  id     String @id @default(cuid())
+  leadId String
+  lead   Lead   @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  type        String
+  subject     String?
+  description String?
+  occurredAt  DateTime @default(now())
+  createdBy   String?
+
+  createdAt DateTime @default(now())
+
+  @@index([leadId])
+}
+
+model Task {
+  id     String @id @default(cuid())
+  leadId String
+  lead   Lead   @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String?
+
+  dueAt    DateTime?
+  priority String?
+  status   String    @default("PENDIENTE")
+
+  createdBy  String?
+  assignedTo String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([leadId])
+  @@index([status])
+}
+
+model User {
+  id    String @id @default(cuid())
+  email String @unique
+  name  String?
+  role  String @default("ADMIN")
+
+  createdAt DateTime @default(now())
+}
+
+// Control de costes (sección 31 del doc original): un registro por llamada a
+// una API externa que consume cuota, para poder aplicar límites diarios y
+// mostrar el uso en el panel de administración.
+model UsageLog {
+  id          String   @id @default(cuid())
+  type        String // BUSQUEDA_PLACES | AUDITORIA_DIGITAL | IA_ANALISIS
+  detail      String? // ej: el texto de búsqueda usado
+  resultCount Int? // cuántos resultados devolvió la llamada
+  createdAt   DateTime @default(now())
+
+  @@index([type, createdAt])
+}
