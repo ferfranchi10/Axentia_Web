@@ -1,16 +1,16 @@
-import { defineConfig, env } from "@prisma/config";
+import { defineConfig } from "@prisma/config";
 import { config as loadEnv } from "dotenv";
 
-// La CLI de Prisma no carga .env.local automáticamente (esa es una
-// convención de Next.js, no de Prisma), así que lo cargamos acá a mano.
+// La CLI de Prisma no carga .env.local automáticamente.
 loadEnv({ path: ".env.local" });
 
-// Prisma 7: la CLI (migrate/studio) ya no lee la URL desde schema.prisma,
-// se configura acá. El cliente en tiempo de ejecución usa un adapter
-// (ver src/lib/db.ts), este archivo solo es para los comandos de Prisma CLI.
+// Placeholder para que `prisma generate` (postinstall / CI) funcione sin base
+// de datos. `prisma migrate` y `studio` sí necesitan la URL real en .env.local.
+const url =
+  process.env.DATABASE_URL ??
+  "postgresql://user:pass@localhost:5432/placeholder";
+
 export default defineConfig({
   schema: "prisma/schema.prisma",
-  datasource: {
-    url: env("DATABASE_URL"),
-  },
+  datasource: { url },
 });
