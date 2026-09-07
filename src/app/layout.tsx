@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { ModalProvider } from "@/context/ModalContext";
+import CookieConsent from "@/components/ui/CookieConsent";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -10,6 +11,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://axentia-web.vercel.app"),
   title: "AXENTIA | Consultoría Tecnológica y Energética",
   description: "Auditoría gratuita para optimizar procesos, automatizar tareas e integrar soluciones tecnológicas e IA en tu empresa.",
   keywords: [
@@ -25,8 +27,15 @@ export const metadata: Metadata = {
   openGraph: {
     title: "AXENTIA | Consultoría Tecnológica y Energética",
     description: "Auditoría gratuita para optimizar procesos, automatizar tareas e integrar soluciones tecnológicas e IA en tu empresa.",
+    url: "https://axentia-web.vercel.app",
+    siteName: "AXENTIA",
     type: "website",
     locale: "es_ES",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AXENTIA | Consultoría Tecnológica y Energética",
+    description: "Auditoría gratuita para optimizar procesos, automatizar tareas e integrar soluciones tecnológicas e IA en tu empresa.",
   },
   icons: {
     icon: "/favicon.ico",
@@ -69,6 +78,7 @@ export default function RootLayout({
             {children}
           </ModalProvider>
         </div>
+        <CookieConsent />
       </body>
     </html>
   );

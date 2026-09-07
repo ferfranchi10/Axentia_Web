@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { cookies } from "next/headers";
 
 const SESSION_SECRET = process.env.SESSION_SECRET || "axentia_fallback_secure_session_secret_key_64_bytes_value_xyz123";
 
@@ -43,4 +44,14 @@ export function verifyToken(token: string): SessionPayload | null {
   } catch {
     return null;
   }
+}
+
+// Usado por las API routes internas (motor de prospección) para verificar
+// la sesión de /admin sin repetir el mismo boilerplate de cookie en cada una.
+export async function isAdminAuthenticated(): Promise<boolean> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("axentia-admin-session")?.value;
+  if (!token) return false;
+  const payload = verifyToken(token);
+  return !!payload?.admin;
 }
