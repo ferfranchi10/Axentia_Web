@@ -8,7 +8,7 @@ import { z } from "zod";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import type { DigitalAudit } from "@prisma/client";
 
-const MODEL = process.env.ANTHROPIC_MODEL || "claude-opus-5";
+const MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-5-5";
 
 // Catálogo real de servicios de Axentia (ver src/components/sections/Services.tsx)
 // — la IA solo puede recomendar de acá, nunca inventar servicios que no ofrecemos.
