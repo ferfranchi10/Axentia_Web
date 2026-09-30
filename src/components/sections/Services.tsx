@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { Activity, BrainCircuit, FileSearch, Wrench } from "lucide-react";
 
@@ -56,6 +57,12 @@ export default function Services() {
               </motion.div>
             );
           })}
+        </div>
+
+        <div className="mt-10 text-center">
+          <Link href="/servicios" className="font-bold text-primary hover:text-primary-dark">
+            Ver todos los servicios →
+          </Link>
         </div>
       </div>
     </section>

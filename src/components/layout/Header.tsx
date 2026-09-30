@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Menu, X, ArrowRight, Calendar } from "lucide-react";
 import { useModal } from "@/context/ModalContext";
 
@@ -17,9 +18,9 @@ export default function Header() {
   }, []);
 
   const navLinks = [
-    { label: "Servicios", href: "#servicios" },
-    { label: "Quiénes somos", href: "#quienes-somos" },
-    { label: "Auditoría gratuita", href: "#formulario" },
+    { label: "Servicios", href: "/servicios" },
+    { label: "Quiénes somos", href: "/#quienes-somos" },
+    { label: "Auditoría gratuita", href: "/#formulario" },
   ];
 
   return (
@@ -33,7 +34,7 @@ export default function Header() {
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           {/* Logo */}
-          <a href="#" className="flex items-center gap-2 group">
+          <Link href="/" className="flex items-center gap-2 group">
             <Image
               src="/brand/axentia-icon.png"
               alt="AXENTIA"
@@ -45,7 +46,7 @@ export default function Header() {
             <span className="text-xl font-bold tracking-tight text-navy">
               AXENTIA
             </span>
-          </a>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-8">
@@ -69,13 +70,13 @@ export default function Header() {
               <Calendar className="w-4 h-4" />
               Agendar llamada
             </button>
-            <a
-              href="#formulario"
+            <Link
+              href="/#formulario"
               className="text-sm font-bold bg-primary text-white py-2.5 px-5 rounded-xl hover:bg-primary-dark transition-all flex items-center gap-1.5 cursor-pointer shadow-sm shadow-primary/30 group"
             >
               Auditoría gratuita
               <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-            </a>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -115,14 +116,14 @@ export default function Header() {
               <Calendar className="w-4 h-4" />
               Agendar llamada
             </button>
-            <a
-              href="#formulario"
+            <Link
+              href="/#formulario"
               onClick={() => setIsMobileMenuOpen(false)}
               className="w-full bg-primary text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 cursor-pointer shadow-sm shadow-primary/30"
             >
               Auditoría gratuita
               <ArrowRight className="w-4 h-4" />
-            </a>
+            </Link>
           </div>
         </div>
       )}
