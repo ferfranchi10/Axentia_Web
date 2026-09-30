@@ -5,6 +5,16 @@ export const SITE_TITLE = "AXENTIA | Consultoría Tecnológica para Empresas";
 export const SITE_DESCRIPTION =
   "Consultoría tecnológica y energética remota para empresas de cualquier país, desde Tarragona. Auditoría gratuita para optimizar procesos, automatizar tareas e integrar soluciones tecnológicas e IA en tu empresa.";
 
+// Schema.org: WebSite. Google lo usa para mostrar el nombre del sitio ("AXENTIA")
+// encima de la URL en los resultados de búsqueda.
+export const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "AXENTIA",
+  alternateName: ["Axentia Consulting", "Axentia"],
+  url: `${SITE_URL}/`,
+};
+
 // Schema.org: ProfessionalService con sede en Tarragona y servicio remoto a cualquier país.
 export const organizationJsonLd = {
   "@context": "https://schema.org",
