@@ -16,6 +16,7 @@ export const organizationJsonLd = {
   image: `${SITE_URL}/opengraph-image.png`,
   description: SITE_DESCRIPTION,
   email: "axentia.consulting@gmail.com",
+  telephone: "+34722406500",
   founder: { "@type": "Person", name: "Fernando Franchi" },
   address: {
     "@type": "PostalAddress",
