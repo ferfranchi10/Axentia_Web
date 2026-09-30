@@ -48,7 +48,7 @@ export default function Hero() {
             variants={itemVariants}
             className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight text-navy"
           >
-            Descubrí qué procesos de tu empresa podés optimizar hoy mismo
+            Consultoría tecnológica para automatizar y optimizar los procesos de tu empresa
           </motion.h1>
 
           {/* Subtitle */}

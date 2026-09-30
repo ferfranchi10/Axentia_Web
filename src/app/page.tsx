@@ -1,4 +1,5 @@
 import { organizationJsonLd } from "@/lib/seo";
+import JsonLd from "@/components/seo/JsonLd";
 
 // Layout
 import Header from "@/components/layout/Header";
@@ -17,12 +18,7 @@ export default function Home() {
   return (
     <>
       {/* Datos estructurados para Google (sede en Tarragona, servicio a cualquier país) */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(organizationJsonLd).replace(/</g, "\\u003c"),
-        }}
-      />
+      <JsonLd data={organizationJsonLd} />
       <Header />
 
       <main>
