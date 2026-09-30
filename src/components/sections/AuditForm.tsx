@@ -116,10 +116,10 @@ export default function AuditForm() {
       <div className="max-w-2xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-10 space-y-3">
           <h2 className="text-3xl sm:text-4xl font-extrabold text-navy leading-tight">
-            Contanos qué querés mejorar
+            Cuéntanos qué quieres mejorar
           </h2>
           <p className="text-text-muted text-sm sm:text-base">
-            Respondé este breve cuestionario y analizaremos tu caso sin compromiso.
+            Responde este breve cuestionario y analizaremos tu caso sin compromiso.
           </p>
         </div>
 
@@ -231,7 +231,7 @@ export default function AuditForm() {
           {/* Necesidades */}
           <div>
             <span className="block text-sm font-semibold text-navy mb-2.5">
-              ¿Qué necesitás mejorar? (elegí todas las que apliquen)
+              ¿Qué necesitas mejorar? (elige todas las que apliquen)
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {NEEDS_OPTIONS.map((option) => {
@@ -262,7 +262,7 @@ export default function AuditForm() {
                 name="otherNeed"
                 value={formData.otherNeed}
                 onChange={handleChange}
-                placeholder="Contanos brevemente qué otra cosa necesitás"
+                placeholder="Cuéntanos brevemente qué otra cosa necesitas"
                 className="mt-3 w-full bg-white border border-navy/15 rounded-xl px-4 py-3 text-sm text-navy placeholder-navy/30 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
               />
             )}
@@ -271,7 +271,7 @@ export default function AuditForm() {
           {/* Descripción */}
           <div>
             <label htmlFor="description" className="block text-sm font-semibold text-navy mb-1.5">
-              Contanos brevemente qué problema querés resolver
+              Cuéntanos brevemente qué problema quieres resolver
             </label>
             <textarea
               id="description"

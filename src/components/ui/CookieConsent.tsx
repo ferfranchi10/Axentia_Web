@@ -55,7 +55,7 @@ export default function CookieConsent() {
                 <Cookie className="w-5 h-5" />
               </div>
               <p className="text-sm text-navy/80 leading-relaxed">
-                Usamos cookies propias y de análisis (Google Analytics) para entender cómo se usa el sitio y mejorarlo. Podés aceptarlas o rechazarlas.
+                Usamos cookies propias y de análisis (Google Analytics) para entender cómo se usa el sitio y mejorarlo. Puedes aceptarlas o rechazarlas.
               </p>
             </div>
             <div className="flex gap-2 justify-end">
