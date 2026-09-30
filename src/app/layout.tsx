@@ -4,6 +4,7 @@ import Script from "next/script";
 import "./globals.css";
 import { ModalProvider } from "@/context/ModalContext";
 import CookieConsent from "@/components/ui/CookieConsent";
+import { SITE_URL, SITE_TITLE, SITE_DESCRIPTION } from "@/lib/seo";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -11,35 +12,36 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://axentia-web.vercel.app"),
-  title: "AXENTIA | Consultoría Tecnológica y Energética",
-  description: "Auditoría gratuita para optimizar procesos, automatizar tareas e integrar soluciones tecnológicas e IA en tu empresa.",
+  metadataBase: new URL(SITE_URL),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
   keywords: [
     "Axentia",
-    "Consultoría Tecnológica",
-    "Consultoría Energética",
+    "Consultoría tecnológica",
+    "Consultoría energética",
     "Automatización de procesos",
     "Inteligencia Artificial empresas",
     "Auditoría gratuita",
     "Integración de sistemas",
   ],
   authors: [{ name: "Axentia Consulting" }],
+  alternates: { canonical: "/" },
   openGraph: {
-    title: "AXENTIA | Consultoría Tecnológica y Energética",
-    description: "Auditoría gratuita para optimizar procesos, automatizar tareas e integrar soluciones tecnológicas e IA en tu empresa.",
-    url: "https://axentia-web.vercel.app",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
     siteName: "AXENTIA",
     type: "website",
     locale: "es_ES",
   },
   twitter: {
     card: "summary_large_image",
-    title: "AXENTIA | Consultoría Tecnológica y Energética",
-    description: "Auditoría gratuita para optimizar procesos, automatizar tareas e integrar soluciones tecnológicas e IA en tu empresa.",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
   },
   icons: {
     icon: "/favicon.ico",
-  }
+  },
 };
 
 export default function RootLayout({
