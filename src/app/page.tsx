@@ -1,4 +1,4 @@
-import { organizationJsonLd } from "@/lib/seo";
+import { organizationJsonLd, websiteJsonLd } from "@/lib/seo";
 import JsonLd from "@/components/seo/JsonLd";
 
 // Layout
@@ -19,6 +19,7 @@ export default function Home() {
     <>
       {/* Datos estructurados para Google (sede en Tarragona, servicio a cualquier país) */}
       <JsonLd data={organizationJsonLd} />
+      <JsonLd data={websiteJsonLd} />
       <Header />
 
       <main>
