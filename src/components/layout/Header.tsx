@@ -50,7 +50,7 @@ export default function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-8">
+          <nav className="hidden xl:flex items-center gap-8">
             {navLinks.map((link) => (
               <a
                 key={link.label}
@@ -63,7 +63,7 @@ export default function Header() {
           </nav>
 
           {/* CTAs Desktop */}
-          <div className="hidden lg:flex items-center gap-3">
+          <div className="hidden xl:flex items-center gap-3">
             <button
               onClick={() => openModal()}
               className="text-sm font-semibold text-navy/70 hover:text-navy py-2 px-3 rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
@@ -83,7 +83,7 @@ export default function Header() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 rounded-xl border border-navy/10 text-navy bg-white cursor-pointer"
+            className="xl:hidden p-2 rounded-xl border border-navy/10 text-navy bg-white cursor-pointer"
           >
             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -92,7 +92,7 @@ export default function Header() {
 
       {/* Mobile Drawer menu */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-30 lg:hidden bg-white flex flex-col pt-24 px-6">
+        <div className="fixed inset-0 z-30 xl:hidden bg-white flex flex-col pt-24 px-6">
           <nav className="flex flex-col gap-6 text-center">
             {navLinks.map((link) => (
               <a
