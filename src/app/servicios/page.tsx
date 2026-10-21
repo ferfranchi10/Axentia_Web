@@ -10,7 +10,7 @@ import { SITE_URL } from "@/lib/seo";
 
 const TITLE = "Servicios de consultoría tecnológica e IA | AXENTIA";
 const DESCRIPTION =
-  "Diagnóstico estratégico, auditoría de IA, automatizaciones, asistentes inteligentes, agentes IA personalizados y dirección tecnológica externa para empresas.";
+  "Diagnóstico estratégico, auditoría de IA, automatizaciones, asistentes inteligentes, agentes IA personalizados, dirección tecnológica externa y formación en IA para empresas.";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -66,6 +66,20 @@ export default function ServiciosPage() {
                 </Link>
               </li>
             ))}
+            <li>
+              <Link
+                href="/formacion"
+                className="soft-card rounded-2xl p-6 h-full flex flex-col gap-3 hover:shadow-md transition-shadow"
+              >
+                <h2 className="text-lg font-bold text-navy">Formación en IA para empresas</h2>
+                <p className="text-sm text-text-muted">
+                  Cursos de IA a medida para tu equipo, 100% prácticos y aplicables al trabajo diario.
+                </p>
+                <span className="mt-auto inline-flex items-center gap-1 text-sm font-bold text-primary">
+                  Ver formación <ArrowRight className="w-4 h-4" />
+                </span>
+              </Link>
+            </li>
           </ul>
         </div>
       </main>

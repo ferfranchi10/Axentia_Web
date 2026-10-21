@@ -9,7 +9,7 @@ import { SITE_URL } from "@/lib/seo";
 
 const TITLE = "Formación en Inteligencia Artificial para empresas | AXENTIA";
 const DESCRIPTION =
-  "Cursos de IA a medida para tu equipo, 100% prácticos y aplicables al trabajo diario. Financiables con el crédito de formación de tu empresa. Auditoría gratuita de 30 minutos.";
+  "Cursos de IA a medida para tu equipo, 100% prácticos y aplicables al trabajo diario. Auditoría gratuita de 30 minutos.";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -35,8 +35,8 @@ const STEPS = [
     text: "Preparamos una formación totalmente práctica y 100 % aplicable, con tus procesos y tus herramientas.",
   },
   {
-    title: "Papeleo con la Fundae",
-    text: "Gestionamos los trámites para que financies la formación con el crédito que tu empresa ya tiene.",
+    title: "Orientación sobre la Fundae",
+    text: "Si tu empresa quiere bonificar la formación con su crédito, podemos orientarte como intermediarios.",
   },
 ];
 
@@ -44,7 +44,6 @@ const BENEFITS = [
   "Tu equipo aprende a usar la IA en su trabajo diario.",
   "Automatizamos procesos de tu empresa sin cambiar tus programas actuales.",
   "No cambiamos tus herramientas: las hacemos trabajar mejor.",
-  "Se financia con el crédito de formación, que caduca a final de año.",
 ];
 
 export default function FormacionPage() {
@@ -87,8 +86,7 @@ export default function FormacionPage() {
             Formación en Inteligencia Artificial para empresas
           </h1>
           <p className="mt-5 text-lg text-text-muted leading-relaxed">
-            Formamos a ti y a tus empleados para que uséis la IA en el trabajo diario, y lo
-            financias con el crédito de formación que tu empresa ya tiene.
+            Formamos a ti y a tus empleados para que uséis la IA en el trabajo diario.
           </p>
 
           <Link
@@ -129,9 +127,9 @@ export default function FormacionPage() {
           </section>
 
           <section className="mt-14 soft-card rounded-2xl p-8 text-center space-y-4">
-            <h2 className="text-2xl font-extrabold text-navy">Tu crédito de formación caduca a final de año</h2>
+            <h2 className="text-2xl font-extrabold text-navy">Empieza con una asesoría gratuita</h2>
             <p className="text-text-muted">
-              Agenda ahora una reunión y preparamos tu curso para hacerlo ya.
+              Agenda una reunión y preparamos un curso adaptado a tu equipo.
             </p>
             <Link
               href="/#formulario"
